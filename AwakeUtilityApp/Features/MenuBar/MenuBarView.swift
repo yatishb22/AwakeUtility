@@ -30,6 +30,12 @@ struct MenuBarView: View {
                     .font(.subheadline)
             }
 
+            if let schedule = coordinator.enforcedSchedule {
+                Text(schedule.windowDescription)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             HStack {
                 Image(systemName: coordinator.runtimeState.powerSource == .ac ? "bolt.fill" : "battery.0")
                 Text(coordinator.runtimeState.powerSource == .ac ? "On AC Power" : "On Battery")

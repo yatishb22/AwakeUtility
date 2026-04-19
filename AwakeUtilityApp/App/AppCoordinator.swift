@@ -8,6 +8,7 @@ final class AppCoordinator {
     var schedules: [WakeSchedule] = []
     var showingScheduleEditor = false
     var editingSchedule: WakeSchedule?
+    var enforcedSchedule: WakeSchedule?
 
     private let scheduleEngine = ScheduleEngine()
     let scheduleRepository = JSONScheduleRepository()
@@ -123,6 +124,7 @@ final class AppCoordinator {
         guard let schedule = schedule else {
             // Outside any window
             runtimeState.enforcementState = .idle
+            enforcedSchedule = nil
             if await assertionManager.isActive {
                 try? await assertionManager.releaseAssertion()
             }
@@ -131,6 +133,7 @@ final class AppCoordinator {
         }
 
         // In active window
+        enforcedSchedule = schedule
         if runtimeState.powerSource == .ac {
             // On AC — enforce
             runtimeState.enforcementState = .active
@@ -144,7 +147,6 @@ final class AppCoordinator {
             if await assertionManager.isActive {
                 try? await assertionManager.releaseAssertion()
             }
-            // Keep wake scheduled in case AC reconnects
         }
     }
 
