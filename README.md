@@ -15,9 +15,18 @@ A macOS menu bar app for Apple Silicon MacBooks that keeps your Mac awake during
 
 - macOS 14.0 (Sonoma) or later
 - Apple Silicon Mac (designed for MacBook power management)
-- Xcode 16+ (for building from source)
 
-## Building
+## Installation
+
+1. Download `AwakeUtility.zip` from the [latest release](https://github.com/kianwoon/AwakeUtility/releases/latest)
+2. Extract the zip
+3. Move `AwakeUtility.app` to `/Applications`
+4. On first launch, right-click the app → **Open** (required for unsigned apps)
+5. The app will appear in your menu bar — click the icon to create a schedule
+
+## Building from Source
+
+Requires Xcode 16+.
 
 ```bash
 git clone https://github.com/kianwoon/AwakeUtility.git
@@ -25,7 +34,7 @@ cd AwakeUtility
 xcodebuild -project AwakeUtility.xcodeproj -scheme AwakeUtility -configuration Debug build
 ```
 
-Or use the included build script to build and launch:
+Or use the included build script:
 
 ```bash
 bash build_and_run.sh
