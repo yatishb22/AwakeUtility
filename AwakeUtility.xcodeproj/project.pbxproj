@@ -36,6 +36,7 @@
 		055d080f8b3dab8ebb0497c1 /* DiagnosticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = bb65c077e955a32a77f4dccf /* DiagnosticsService.swift */; };
 		3fb0dc82df1dc0217e5521cc /* ScheduleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06d58195f85757c4978e8e9b /* ScheduleEngine.swift */; };
 		09d0665d0c5e157d264dd730 /* TriggerCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1a7b1e17222d7b8f8e892dd3 /* TriggerCalculator.swift */; };
+		f7a3b1c2d4e5f6a7b8c9d0e1 /* WakeScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = a2b3c4d5e6f7a8b9c0d1e2f3 /* WakeScheduler.swift */; };
 		1a48bcaa4145222528a5eeed /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9fbf04d64a422c5b2627c0db /* Assets.xcassets */; };
 		6b107570606a8baa783ee030 /* ScheduleEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5b20830f21ad55916fcb2a24 /* ScheduleEngineTests.swift */; };
 		d704bdc12cfa48ff22702dcf /* TriggerCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = bb590bbf0e1dc7753b05fdf4 /* TriggerCalculatorTests.swift */; };
@@ -85,6 +86,7 @@
 		bb65c077e955a32a77f4dccf /* DiagnosticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsService.swift; sourceTree = "<group>"; };
 		06d58195f85757c4978e8e9b /* ScheduleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleEngine.swift; sourceTree = "<group>"; };
 		1a7b1e17222d7b8f8e892dd3 /* TriggerCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerCalculator.swift; sourceTree = "<group>"; };
+			a2b3c4d5e6f7a8b9c0d1e2f3 /* WakeScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeScheduler.swift; sourceTree = "<group>"; };
 		5b20830f21ad55916fcb2a24 /* ScheduleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleEngineTests.swift; sourceTree = "<group>"; };
 		bb590bbf0e1dc7753b05fdf4 /* TriggerCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerCalculatorTests.swift; sourceTree = "<group>"; };
 			a1b2c3d4e5f67890abcdef12 /* PowerAssertionManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAssertionManagerTests.swift; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 				c871018381d5d4b786ac31a9 /* PowerAssertionManager.swift */,
 				c91d8a38bb83d48a6eccaed2 /* PowerSourceMonitor.swift */,
 				3a3ee1103b2cea4cb4090641 /* SleepEventObserver.swift */,
+				a2b3c4d5e6f7a8b9c0d1e2f3 /* WakeScheduler.swift */,
 			);
 			path = Power;
 			sourceTree = "<group>";
@@ -406,6 +409,7 @@
 				055d080f8b3dab8ebb0497c1 /* DiagnosticsService.swift in Sources */,
 				3fb0dc82df1dc0217e5521cc /* ScheduleEngine.swift in Sources */,
 				09d0665d0c5e157d264dd730 /* TriggerCalculator.swift in Sources */,
+				f7a3b1c2d4e5f6a7b8c9d0e1 /* WakeScheduler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

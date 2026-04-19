@@ -13,6 +13,8 @@ final class AppCoordinator {
     let scheduleRepository = JSONScheduleRepository()
     let powerMonitor = PowerSourceMonitor.shared
     let assertionManager = PowerAssertionManager()
+    let wakeScheduler = WakeScheduler.shared
+    private var enforcementTimer: Task<Void, Never>?
     let logger = LocalLogger()
 
     private static let schedulesFileURL: URL = {
@@ -42,19 +44,28 @@ final class AppCoordinator {
 
     func start() async {
         NSLog("[AwakeUtility] start() called")
+        let initialPower = PowerSourceMonitor.readPowerSource()
+        runtimeState.powerSource = initialPower
         powerMonitor.startMonitoring()
-        let initial = await powerMonitor.currentPowerSource
-        NSLog("[AwakeUtility] Initial power source: \(initial.rawValue)")
-        runtimeState.powerSource = initial
 
+        // Subscribe to power source changes
         Task { @MainActor in
             for await state in powerMonitor.powerSourceUpdates {
                 NSLog("[AwakeUtility] Power source changed: \(state.rawValue)")
                 runtimeState.powerSource = state
+                await updateEnforcementState()
             }
         }
 
-        await refreshRuntimeState()
+        // Start 30-second enforcement check timer
+        enforcementTimer = Task { @MainActor in
+            while !Task.isCancelled {
+                await updateEnforcementState()
+                try? await Task.sleep(for: .seconds(30))
+            }
+        }
+
+        await updateEnforcementState()
         NSLog("[AwakeUtility] start() done. enforcement=\(runtimeState.enforcementState.displayName) power=\(runtimeState.powerSource.rawValue)")
     }
 
@@ -103,12 +114,37 @@ final class AppCoordinator {
     }
 
     func refreshRuntimeState() async {
-        let enforcing = await scheduleEngine.shouldEnforce(now: Date())
+        await updateEnforcementState()
+    }
 
-        if enforcing {
-            runtimeState.enforcementState = .active
-        } else {
+    private func updateEnforcementState() async {
+        let schedule = await scheduleEngine.currentlyEnforcingSchedule(now: Date())
+
+        guard let schedule = schedule else {
+            // Outside any window
             runtimeState.enforcementState = .idle
+            if await assertionManager.isActive {
+                try? await assertionManager.releaseAssertion()
+            }
+            wakeScheduler.cancelScheduledWake()
+            return
+        }
+
+        // In active window
+        if runtimeState.powerSource == .ac {
+            // On AC — enforce
+            runtimeState.enforcementState = .active
+            if !(await assertionManager.isActive) {
+                try? await assertionManager.acquireAssertion()
+            }
+            wakeScheduler.scheduleWake(for: schedule)
+        } else {
+            // On battery — wait
+            runtimeState.enforcementState = .waitingForAC
+            if await assertionManager.isActive {
+                try? await assertionManager.releaseAssertion()
+            }
+            // Keep wake scheduled in case AC reconnects
         }
     }
 
