@@ -17,32 +17,27 @@ struct ScheduleEngineTests {
         return Calendar.current.date(from: components)!
     }
 
-    @Test("No schedules returns nil for next active")
+    @Test("No schedules returns nil for currently enforcing")
     func noSchedules() async {
         let engine = ScheduleEngine()
         let now = Date()
-        #expect(await engine.nextActiveSchedule(now: now) == nil)
+        #expect(await engine.currentlyEnforcingSchedule(now: now) == nil)
     }
 
     @Test("Disabled schedules are ignored")
     func disabledSchedulesIgnored() async {
         let engine = ScheduleEngine()
-        let schedule = WakeSchedule(label: "Off", isEnabled: false, hour: 8, minute: 0)
-        await engine.reload([schedule])
-        let now = makeDate(year: 2026, month: 4, day: 20, hour: 7, minute: 0)
-        #expect(await engine.nextActiveSchedule(now: now) == nil)
-    }
-
-    @Test("Enabled schedule returns the correct next schedule")
-    func enabledScheduleFound() async {
-        let engine = ScheduleEngine()
         let allDays = Set(Weekday.allCases)
-        let schedule = WakeSchedule(label: "Morning", isEnabled: true, hour: 8, minute: 0, repeatDays: allDays)
+        let schedule = WakeSchedule(
+            label: "Off", isEnabled: false,
+            startHour: 8, startMinute: 0,
+            endHour: 17, endMinute: 0,
+            repeatDays: allDays,
+            requiresACPower: true
+        )
         await engine.reload([schedule])
-
-        let now = makeDate(year: 2026, month: 4, day: 20, hour: 7, minute: 0)
-        let result = await engine.nextActiveSchedule(now: now)
-        #expect(result?.label == "Morning")
+        let now = makeDate(year: 2026, month: 4, day: 20, hour: 10, minute: 0)
+        #expect(await engine.currentlyEnforcingSchedule(now: now) == nil)
     }
 
     @Test("Should enforce returns true when in active window")
@@ -53,13 +48,14 @@ struct ScheduleEngineTests {
 
         let schedule = WakeSchedule(
             label: "Active", isEnabled: true,
-            hour: 8, minute: 0,
+            startHour: 8, startMinute: 0,
+            endHour: 17, endMinute: 0,
             repeatDays: [day],
-            leadMinutes: 15, holdMinutes: 10
+            requiresACPower: true
         )
         await engine.reload([schedule])
 
-        let inWindow = makeDate(year: 2026, month: 4, day: 20, hour: 7, minute: 50)
+        let inWindow = makeDate(year: 2026, month: 4, day: 20, hour: 10, minute: 0)
         #expect(await engine.shouldEnforce(now: inWindow))
     }
 
@@ -71,27 +67,14 @@ struct ScheduleEngineTests {
 
         let schedule = WakeSchedule(
             label: "Active", isEnabled: true,
-            hour: 8, minute: 0,
+            startHour: 8, startMinute: 0,
+            endHour: 17, endMinute: 0,
             repeatDays: [day],
-            leadMinutes: 15, holdMinutes: 10
+            requiresACPower: true
         )
         await engine.reload([schedule])
 
-        let outside = makeDate(year: 2026, month: 4, day: 20, hour: 6, minute: 0)
-        #expect(!await engine.shouldEnforce(now: outside))
-    }
-
-    @Test("Overlapping schedules picks earliest lead start")
-    func overlappingSchedulesPicksEarliest() async {
-        let engine = ScheduleEngine()
-        let allDays = Set(Weekday.allCases)
-
-        let early = WakeSchedule(label: "Early", isEnabled: true, hour: 7, minute: 30, repeatDays: allDays, leadMinutes: 15, holdMinutes: 5)
-        let late = WakeSchedule(label: "Late", isEnabled: true, hour: 8, minute: 0, repeatDays: allDays, leadMinutes: 15, holdMinutes: 5)
-        await engine.reload([late, early])
-
-        let now = makeDate(year: 2026, month: 4, day: 20, hour: 6, minute: 0)
-        let result = await engine.nextActiveSchedule(now: now)
-        #expect(result?.label == "Early")
+        let outside = makeDate(year: 2026, month: 4, day: 20, hour: 18, minute: 0)
+        #expect(await !engine.shouldEnforce(now: outside))
     }
 }

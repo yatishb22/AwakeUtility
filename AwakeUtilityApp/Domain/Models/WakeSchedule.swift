@@ -4,39 +4,38 @@ struct WakeSchedule: Identifiable, Codable, Hashable {
     let id: UUID
     var label: String
     var isEnabled: Bool
-    var hour: Int
-    var minute: Int
+    var startHour: Int
+    var startMinute: Int
+    var endHour: Int
+    var endMinute: Int
     var repeatDays: Set<Weekday>
-    var leadMinutes: Int
-    var holdMinutes: Int
     var requiresACPower: Bool
-    var advancedWakeEnabled: Bool
 
     init(
         id: UUID = UUID(),
         label: String = "New Schedule",
         isEnabled: Bool = true,
-        hour: Int = 8,
-        minute: Int = 0,
+        startHour: Int = 8,
+        startMinute: Int = 0,
+        endHour: Int = 17,
+        endMinute: Int = 0,
         repeatDays: Set<Weekday> = Set(Weekday.allCases),
-        leadMinutes: Int = 15,
-        holdMinutes: Int = 15,
-        requiresACPower: Bool = true,
-        advancedWakeEnabled: Bool = false
+        requiresACPower: Bool = true
     ) {
         self.id = id
         self.label = label
         self.isEnabled = isEnabled
-        self.hour = hour
-        self.minute = minute
+        self.startHour = startHour
+        self.startMinute = startMinute
+        self.endHour = endHour
+        self.endMinute = endMinute
         self.repeatDays = repeatDays
-        self.leadMinutes = leadMinutes
-        self.holdMinutes = holdMinutes
         self.requiresACPower = requiresACPower
-        self.advancedWakeEnabled = advancedWakeEnabled
     }
 
-    var targetTime: String {
-        String(format: "%02d:%02d", hour, minute)
+    var windowDescription: String {
+        let start = String(format: "%02d:%02d", startHour, startMinute)
+        let end = String(format: "%02d:%02d", endHour, endMinute)
+        return "\(start) - \(end)"
     }
 }

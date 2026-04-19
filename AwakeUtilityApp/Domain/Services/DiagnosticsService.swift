@@ -19,7 +19,6 @@ actor DiagnosticsService {
         return AppDiagnostics(
             powerSource: runtimeState.powerSource,
             enforcementState: runtimeState.enforcementState,
-            nextTrigger: runtimeState.nextTrigger,
             activeAssertion: runtimeState.activeAssertion,
             lastSleepAt: runtimeState.lastSleepAt,
             lastWakeAt: runtimeState.lastWakeAt,

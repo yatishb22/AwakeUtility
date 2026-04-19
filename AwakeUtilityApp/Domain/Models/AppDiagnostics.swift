@@ -3,7 +3,6 @@ import Foundation
 struct AppDiagnostics {
     var powerSource: PowerSourceState
     var enforcementState: EnforcementState
-    var nextTrigger: Date?
     var activeAssertion: Bool
     var lastSleepAt: Date?
     var lastWakeAt: Date?
@@ -15,7 +14,6 @@ struct AppDiagnostics {
     static let empty = AppDiagnostics(
         powerSource: .unknown,
         enforcementState: .idle,
-        nextTrigger: nil,
         activeAssertion: false,
         lastSleepAt: nil,
         lastWakeAt: nil,

@@ -16,10 +16,6 @@ struct DiagnosticsView: View {
                         diagnosticRow("Enforcement", value: coordinator.runtimeState.enforcementState.displayName)
                         diagnosticRow("Assertion Active", value: coordinator.runtimeState.activeAssertion ? "Yes" : "No")
 
-                        if let next = coordinator.runtimeState.nextTrigger {
-                            diagnosticRow("Next Trigger", value: next.formatted())
-                        }
-
                         if let sleep = coordinator.runtimeState.lastSleepAt {
                             diagnosticRow("Last Sleep", value: sleep.formatted())
                         }

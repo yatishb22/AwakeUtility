@@ -5,14 +5,11 @@ struct ScheduleEditorView: View {
     let schedule: WakeSchedule
 
     @State private var label: String = ""
-    @State private var hour: Int = 8
-    @State private var minute: Int = 0
     @State private var selectedDays: Set<Weekday> = []
-    @State private var leadMinutes: Int = 15
-    @State private var holdMinutes: Int = 15
     @State private var requiresAC: Bool = true
     @State private var validationMessage: String?
-    @State private var targetTime: Date = Date()
+    @State private var startTime: Date = Date()
+    @State private var endTime: Date = Date()
 
     var body: some View {
         Form {
@@ -22,8 +19,14 @@ struct ScheduleEditorView: View {
                         .textFieldStyle(.roundedBorder)
 
                     HStack {
-                        Text("Time:")
-                        DatePicker("", selection: $targetTime, displayedComponents: .hourAndMinute)
+                        Text("Start:")
+                        DatePicker("", selection: $startTime, displayedComponents: .hourAndMinute)
+                            .labelsHidden()
+                    }
+
+                    HStack {
+                        Text("End:")
+                        DatePicker("", selection: $endTime, displayedComponents: .hourAndMinute)
                             .labelsHidden()
                     }
 
@@ -34,16 +37,6 @@ struct ScheduleEditorView: View {
 
             GroupBox("Advanced") {
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Stepper("Lead time: \(leadMinutes) min", value: $leadMinutes, in: 1...60)
-                    }
-                    .help("How long before the target time to start keeping the Mac awake")
-
-                    HStack {
-                        Stepper("Hold time: \(holdMinutes) min", value: $holdMinutes, in: 0...60)
-                    }
-                    .help("How long after the target time to keep the Mac awake")
-
                     Toggle("Require AC Power", isOn: $requiresAC)
                         .help("Only enforce awake state when connected to external power")
                 }
@@ -58,10 +51,6 @@ struct ScheduleEditorView: View {
         }
         .formStyle(.grouped)
         .onAppear { loadSchedule() }
-        .onChange(of: targetTime) { _, newDate in
-            hour = Calendar.current.component(.hour, from: newDate)
-            minute = Calendar.current.component(.minute, from: newDate)
-        }
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {
@@ -81,17 +70,14 @@ struct ScheduleEditorView: View {
     private var isValid: Bool {
         label.trimmingCharacters(in: .whitespaces).isEmpty == false
         && !selectedDays.isEmpty
-        && leadMinutes >= 1
     }
 
     private func loadSchedule() {
         label = schedule.label
-        hour = schedule.hour
-        minute = schedule.minute
-        targetTime = Calendar.current.date(bySettingHour: schedule.hour, minute: schedule.minute, second: 0, of: Date()) ?? Date()
+        let calendar = Calendar.current
+        startTime = calendar.date(bySettingHour: schedule.startHour, minute: schedule.startMinute, second: 0, of: Date()) ?? Date()
+        endTime = calendar.date(bySettingHour: schedule.endHour, minute: schedule.endMinute, second: 0, of: Date()) ?? Date()
         selectedDays = schedule.repeatDays
-        leadMinutes = schedule.leadMinutes
-        holdMinutes = schedule.holdMinutes
         requiresAC = schedule.requiresACPower
     }
 
@@ -101,13 +87,19 @@ struct ScheduleEditorView: View {
             return
         }
 
+        let calendar = Calendar.current
+        let startHour = calendar.component(.hour, from: startTime)
+        let startMinute = calendar.component(.minute, from: startTime)
+        let endHour = calendar.component(.hour, from: endTime)
+        let endMinute = calendar.component(.minute, from: endTime)
+
         var updated = schedule
         updated.label = label.trimmingCharacters(in: .whitespaces)
-        updated.hour = hour
-        updated.minute = minute
+        updated.startHour = startHour
+        updated.startMinute = startMinute
+        updated.endHour = endHour
+        updated.endMinute = endMinute
         updated.repeatDays = selectedDays
-        updated.leadMinutes = leadMinutes
-        updated.holdMinutes = holdMinutes
         updated.requiresACPower = requiresAC
 
         Task {

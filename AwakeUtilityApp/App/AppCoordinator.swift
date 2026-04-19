@@ -29,11 +29,9 @@ final class AppCoordinator {
 
     var iconName: String {
         switch runtimeState.enforcementState {
-        case .enforcing, .holdWindow:
+        case .active:
             return "bolt.circle.fill"
-        case .scheduled:
-            return "clock.circle"
-        case .waitingForPower:
+        case .waitingForAC:
             return "bolt.slash.circle"
         case .failed:
             return "exclamationmark.circle"
@@ -105,14 +103,10 @@ final class AppCoordinator {
     }
 
     func refreshRuntimeState() async {
-        let next = await scheduleEngine.nextActiveSchedule(now: Date())
-        let window = await scheduleEngine.windowForNextSchedule(now: Date())
+        let enforcing = await scheduleEngine.shouldEnforce(now: Date())
 
-        runtimeState.nextScheduleID = next?.id
-        runtimeState.nextTrigger = window?.targetTime
-
-        if next != nil {
-            runtimeState.enforcementState = .scheduled
+        if enforcing {
+            runtimeState.enforcementState = .active
         } else {
             runtimeState.enforcementState = .idle
         }

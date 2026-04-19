@@ -30,15 +30,6 @@ struct MenuBarView: View {
                     .font(.subheadline)
             }
 
-            if let next = coordinator.runtimeState.nextTrigger {
-                HStack {
-                    Text("Next:")
-                        .foregroundStyle(.secondary)
-                    Text(next, style: .time)
-                }
-                .font(.caption)
-            }
-
             HStack {
                 Image(systemName: coordinator.runtimeState.powerSource == .ac ? "bolt.fill" : "battery.0")
                 Text(coordinator.runtimeState.powerSource == .ac ? "On AC Power" : "On Battery")

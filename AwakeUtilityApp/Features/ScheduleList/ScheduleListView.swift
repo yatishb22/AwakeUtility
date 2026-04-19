@@ -79,12 +79,9 @@ struct ScheduleRow: View {
                     .font(.headline)
 
                 HStack(spacing: 6) {
-                    Text(schedule.targetTime)
+                    Text(schedule.windowDescription)
                     Text("·")
                     Text(daysDescription)
-                    if schedule.requiresACPower {
-                        Text("· AC Required")
-                    }
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
