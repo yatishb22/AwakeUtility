@@ -1,5 +1,10 @@
 # AwakeUtility
 
+[![Release](https://img.shields.io/github/v/release/kianwoon/AwakeUtility?label=release)](https://github.com/kianwoon/AwakeUtility/releases/latest)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Apple%20Silicon-blue)](https://github.com/kianwoon/AwakeUtility)
+[![Swift](https://img.shields.io/badge/Swift-5.9-orange)](https://swift.org)
+[![License](https://img.shields.io/github/license/kianwoon/AwakeUtility)](LICENSE)
+
 A macOS menu bar app for Apple Silicon MacBooks that keeps your Mac awake during scheduled time windows and automatically wakes it from sleep.
 
 ## Features
