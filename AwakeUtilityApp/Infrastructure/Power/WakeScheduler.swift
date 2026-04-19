@@ -6,39 +6,54 @@ import IOKit.pwr_mgt
 final class WakeScheduler {
     private var scheduledWakeDate: Date?
 
-    /// Schedule a wake event for the given schedule's start time.
-    /// If the time has already passed today, schedules for tomorrow.
-    func scheduleWake(for schedule: WakeSchedule) {
+    /// Schedule the NEXT wake event across all enabled schedules.
+    /// Finds the earliest upcoming start time and schedules it.
+    func scheduleNextWake(for schedules: [WakeSchedule]) {
+        let enabled = schedules.filter(\.isEnabled)
+        guard !enabled.isEmpty else {
+            cancelScheduledWake()
+            return
+        }
+
         let calendar = Calendar.current
-        var components = calendar.dateComponents([.year, .month, .day], from: Date())
-        components.hour = schedule.startHour
-        components.minute = schedule.startMinute
-        components.second = 0
+        let now = Date()
+        var nearestWakeDate: Date?
 
-        guard let wakeDate = calendar.date(from: components) else { return }
+        for schedule in enabled {
+            var components = calendar.dateComponents([.year, .month, .day], from: now)
+            components.hour = schedule.startHour
+            components.minute = schedule.startMinute
+            components.second = 0
 
-        if wakeDate <= Date() {
-            if let tomorrow = calendar.date(byAdding: .day, value: 1, to: wakeDate) {
-                scheduleWakeAt(tomorrow)
+            guard var wakeDate = calendar.date(from: components) else { continue }
+
+            if wakeDate <= now {
+                guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: wakeDate) else { continue }
+                wakeDate = tomorrow
             }
+
+            if nearestWakeDate == nil || wakeDate < nearestWakeDate! {
+                nearestWakeDate = wakeDate
+            }
+        }
+
+        if let target = nearestWakeDate {
+            scheduleWakeAt(target)
         } else {
-            scheduleWakeAt(wakeDate)
+            cancelScheduledWake()
         }
     }
 
-    /// Cancel any previously scheduled wake event.
     func cancelScheduledWake() {
         guard let scheduled = scheduledWakeDate else { return }
-        // kIOPMAutoWake is a C macro ("wake") not exported to Swift — use string directly
         IOPMCancelScheduledPowerEvent(scheduled as CFDate, nil, "wake" as CFString)
         scheduledWakeDate = nil
+        NSLog("[WakeScheduler] Cancelled wake event")
     }
 
     private func scheduleWakeAt(_ date: Date) {
-        // Cancel previous wake event first
         cancelScheduledWake()
 
-        // kIOPMAutoWake is a C macro ("wake") not exported to Swift — use string directly
         let result = IOPMSchedulePowerEvent(date as CFDate, nil, "wake" as CFString)
         if result == kIOReturnSuccess {
             scheduledWakeDate = date

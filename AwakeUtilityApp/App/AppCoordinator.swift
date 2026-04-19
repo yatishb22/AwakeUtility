@@ -45,15 +45,32 @@ final class AppCoordinator {
 
     func start() async {
         NSLog("[AwakeUtility] start() called")
+
+        // Sync engine with loaded schedules
+        await scheduleEngine.reload(schedules)
+
+        // Read initial power source
         let initialPower = PowerSourceMonitor.readPowerSource()
         runtimeState.powerSource = initialPower
         powerMonitor.startMonitoring()
+
+        // Always schedule next wake event for enabled schedules
+        wakeScheduler.scheduleNextWake(for: schedules)
 
         // Subscribe to power source changes
         Task { @MainActor in
             for await state in powerMonitor.powerSourceUpdates {
                 NSLog("[AwakeUtility] Power source changed: \(state.rawValue)")
                 runtimeState.powerSource = state
+                await updateEnforcementState()
+            }
+        }
+
+        // Listen for system wake-from-sleep to reschedule
+        Task { @MainActor in
+            for await _ in NotificationCenter.default.notifications(named: NSWorkspace.didWakeNotification) {
+                NSLog("[AwakeUtility] System woke from sleep")
+                wakeScheduler.scheduleNextWake(for: schedules)
                 await updateEnforcementState()
             }
         }
@@ -74,6 +91,7 @@ final class AppCoordinator {
         do {
             schedules = try await scheduleRepository.loadAll()
             await scheduleEngine.reload(schedules)
+            wakeScheduler.scheduleNextWake(for: schedules)
         } catch {
             logger.log(LogEvent(type: .error, message: "Failed to load schedules: \(error.localizedDescription)"))
         }
@@ -84,6 +102,7 @@ final class AppCoordinator {
             try await scheduleRepository.save(schedule)
             schedules = try await scheduleRepository.loadAll()
             await scheduleEngine.reload(schedules)
+            wakeScheduler.scheduleNextWake(for: schedules)
         } catch {
             logger.log(LogEvent(type: .error, message: "Failed to save schedule: \(error.localizedDescription)"))
         }
@@ -94,6 +113,7 @@ final class AppCoordinator {
             try await scheduleRepository.delete(id)
             schedules = try await scheduleRepository.loadAll()
             await scheduleEngine.reload(schedules)
+            wakeScheduler.scheduleNextWake(for: schedules)
         } catch {
             logger.log(LogEvent(type: .error, message: "Failed to delete schedule: \(error.localizedDescription)"))
         }
@@ -122,13 +142,12 @@ final class AppCoordinator {
         let schedule = await scheduleEngine.currentlyEnforcingSchedule(now: Date())
 
         guard let schedule = schedule else {
-            // Outside any window
+            // Outside any window — release assertion but keep wake scheduled
             runtimeState.enforcementState = .idle
             enforcedSchedule = nil
             if await assertionManager.isActive {
                 try? await assertionManager.releaseAssertion()
             }
-            wakeScheduler.cancelScheduledWake()
             return
         }
 
@@ -138,9 +157,13 @@ final class AppCoordinator {
             // On AC — enforce
             runtimeState.enforcementState = .active
             if !(await assertionManager.isActive) {
-                try? await assertionManager.acquireAssertion()
+                do {
+                    try await assertionManager.acquireAssertion()
+                } catch {
+                    runtimeState.enforcementState = .failed
+                    NSLog("[AwakeUtility] Failed to acquire assertion: \(error)")
+                }
             }
-            wakeScheduler.scheduleWake(for: schedule)
         } else {
             // On battery — wait
             runtimeState.enforcementState = .waitingForAC
