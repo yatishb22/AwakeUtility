@@ -1,0 +1,12 @@
+# Xcode
+build/
+DerivedData/
+xcuserdata/
+*.xcscmblueprint
+
+# macOS
+.DS_Store
+*.swp
+
+# App data
+schedules.json
